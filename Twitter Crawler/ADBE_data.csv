@@ -1,0 +1,13 @@
+id,created_at,source,original_text,clean_text,sentiment,polarity,subjectivity,lang,favorite_count,retweet_count,original_author,possibly_sensitive,hashtags,user_mentions,place,place_coord_boundaries
+1177316051085877248,Thu Sep 26 20:16:34 +0000 2019,"<a href=""https://techniquant.com"" rel=""nofollow"">TQ Alerts</a>","$ADBE surges, gaining $6.38 (2.3%) within a single day: https://t.co/r47XfucOXw
+Sentiment: Bullish #ADBE",ADBE surges gaining 6.38 2.3 within single day Sentiment Bullish,"Sentiment(polarity=-0.07142857142857142, subjectivity=0.21428571428571427)",-0.07142857142857142,0.21428571428571427,en,0,0,tq_equities,False,ADBE,,"Berlin, Deutschland",
+1177245920716644355,Thu Sep 26 15:37:54 +0000 2019,"<a href=""https://mobile.twitter.com"" rel=""nofollow"">Twitter Web App</a>","Hot Stocks of Today
+#SAM+3.44%
+#NTES+2.16%
+#MIXT+1.30%
+#ADBE+0.92%
+#NVR+0.89%
+#UNP+0.56%
+#TRV+0.50%
+#IRBT+0.45%… https://t.co/0T0eWhhNnx",Hot Stocks Today +3.44 +2.16 +1.30 +0.92 +0.89 +0.56 +0.50 +0.45 …,"Sentiment(polarity=0.25, subjectivity=0.8500000000000001)",0.25,0.8500000000000001,en,0,0,TheExtraIncome,False,"SAM, NTES, MIXT, ADBE, NVR, UNP, TRV, IRBT",,Italy,
+1176017878610567168,Mon Sep 23 06:18:06 +0000 2019,"<a href=""https://zapier.com/"" rel=""nofollow"">Zapier.com</a>",Oppenheimer Raises Adobe Q2 2020 Earnings Estimates to $1.95 EPS (Previously $1.93). https://t.co/jvU6zgfm0R $ADBE #ADBE,Oppenheimer Raises Adobe Q2 Earnings Estimates 1.95 EPS Previously 1.93 ADBE,"Sentiment(polarity=-0.16666666666666666, subjectivity=0.16666666666666666)",-0.16666666666666666,0.16666666666666666,en,0,0,RatingsNetwork,False,ADBE,,"Sioux Falls, SD",
