@@ -1,18 +1,46 @@
 # coding by Weiheng 
 import pandas as pd
-# from bert_embedding import BertEmbedding
+import numpy as np
+from bert_embedding import BertEmbedding
 
 
 add = "C:\\Users\\willh\\Documents\\Big Data\\Project\\sentiment140\\sentiment140.csv"
-
+bert_embedding =  BertEmbedding()
 #read csv
-data = pd.read_csv(add) 
+data = pd.read_csv(add)
+data = data[0:int(len(data)*0.00001)]
+print(data.shape) 
+
+
+# vector = np.zeros(len(data))
+vector = []
+# print(len(data))
+#select colunms
+content = data['Content']
+#print(content.head())
+
+for i in range(0, len(content)):
+  sentence = content[i]
+  print(sentence)
 #pre-process
-print(data.head())
+
 
 #word vectorlization
+  result = bert_embedding(sentence)
+  print(result[1][1][0].shape)
+  # print(result[1][1][0])
+  # vector[i] = np.array([result[1][1][0]])
+  vector += [result[1][1][0]]
+
+data['Vector'] = vector
+
+print(data.head)
+print(data.shape)
+
+  
 
 
+#merge
 
 #signiture
 
