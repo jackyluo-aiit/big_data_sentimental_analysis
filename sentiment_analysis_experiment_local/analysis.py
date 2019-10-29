@@ -39,7 +39,8 @@ for i in range(0, len(content)):
 
 #word vectorlization/ tokenlize
   result = bert_embedding(sentence)
-
+  print(result)
+  print("  ")
   # print(len(result[0][1]))
   # print(np.shape(np.array(result[0][1])))
   vector += [np.array(result[0][1])]
