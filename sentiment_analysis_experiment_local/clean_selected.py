@@ -7,7 +7,7 @@ from sklearn.cluster import KMeans
 
 '''
 This file is to select the data with polarity are '0' and '4';
-Then clean the data, which only remains the words.
+Then clean the data, which only remains the words and punctuations.
 '''
 data = pd.read_csv(
     "/Users/jackyluo/OneDrive - The Chinese University of Hong Kong/Big Data/project/the-disagreeable-frogs/training.1600000.processed.noemoticon.csv",
