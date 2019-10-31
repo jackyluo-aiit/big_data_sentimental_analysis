@@ -11,6 +11,7 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 import pymysql
 import datetime
+import time
 
 #mrhod clean_tweets()
 def clean_tweets(tweet):
@@ -82,77 +83,87 @@ def write_tweets(keyword, file):
         df = pd.DataFrame(columns=COLS)
     #page attribute in tweepy.cursor and iteration
     a = 0
-    for page in tweepy.Cursor(api.search, q=keyword,count=200, include_rts=False, since=start_date).pages(50):
-        a += 1
-        print("cralwing page "+str(a))
-        for status in page:
-            new_entry = []
-            status = status._json
-            if status['lang'] != 'en':## check whether the tweet is in english or skip to the next tweet
-                continue
-            #when run the code, below code replaces the retweet amount and
-            #no of favorires that are changed since last download.
-            if status['created_at'] in df['created_at'].values:
-                i = df.loc[df['created_at'] == status['created_at']].index[0]
-                if status['favorite_count'] != df.at[i, 'favorite_count'] or \
-                   status['retweet_count'] != df.at[i, 'retweet_count']:
-                    df.at[i, 'favorite_count'] = status['favorite_count']
-                    df.at[i, 'retweet_count'] = status['retweet_count']
-                continue
-            clean_text = p.clean(status['text'])    #tweepy preprocessing called for basic preprocessing
-            filtered_tweet=clean_tweets(clean_text) #call clean_tweet method for extra preprocessing
-            blob = TextBlob(filtered_tweet) #pass textBlob method for sentiment calculations
-            Sentiment = blob.sentiment
-            polarity = Sentiment.polarity  #seperate polarity and subjectivity in to two variables
-            subjectivity = Sentiment.subjectivity
 
-            #new entry append
-            new_entry += [status['id'], status['created_at'],
-                          status['source'], status['text'],filtered_tweet, Sentiment,polarity,subjectivity, status['lang'],
-                          status['favorite_count'], status['retweet_count']]
+    try:
 
-            #to append original author of the tweet
-            new_entry.append(status['user']['screen_name'])
+        for page in tweepy.Cursor(api.search, q=keyword,count=200, include_rts=False, since=start_date).pages(50):
+            a += 1
+            print("cralwing page "+str(a))
+            for status in page:
+                new_entry = []
+                status = status._json
+                if status['lang'] != 'en':## check whether the tweet is in english or skip to the next tweet
+                    continue
+                #when run the code, below code replaces the retweet amount and
+                #no of favorires that are changed since last download.
+                if status['created_at'] in df['created_at'].values:
+                    i = df.loc[df['created_at'] == status['created_at']].index[0]
+                    if status['favorite_count'] != df.at[i, 'favorite_count'] or \
+                       status['retweet_count'] != df.at[i, 'retweet_count']:
+                        df.at[i, 'favorite_count'] = status['favorite_count']
+                        df.at[i, 'retweet_count'] = status['retweet_count']
+                    continue
+                clean_text = p.clean(status['text'])    #tweepy preprocessing called for basic preprocessing
+                filtered_tweet=clean_tweets(clean_text) #call clean_tweet method for extra preprocessing
+                blob = TextBlob(filtered_tweet) #pass textBlob method for sentiment calculations
+                Sentiment = blob.sentiment
+                polarity = Sentiment.polarity  #seperate polarity and subjectivity in to two variables
+                subjectivity = Sentiment.subjectivity
 
-            try:
-                is_sensitive = status['possibly_sensitive']
-            except KeyError:
-                is_sensitive = None
-            new_entry.append(is_sensitive)
+                #new entry append
+                new_entry += [status['id'], status['created_at'],
+                              status['source'], status['text'],filtered_tweet, Sentiment,polarity,subjectivity, status['lang'],
+                              status['favorite_count'], status['retweet_count']]
 
-            # hashtagas and mentiones are saved using comma separted
-            hashtags = ", ".join([hashtag_item['text'] for hashtag_item in status['entities']['hashtags']])
-            new_entry.append(hashtags)
-            mentions = ", ".join([mention['screen_name'] for mention in status['entities']['user_mentions']])
-            new_entry.append(mentions)
+                #to append original author of the tweet
+                new_entry.append(status['user']['screen_name'])
 
-            #get location of the tweet if possible
-            try:
-                location = status['user']['location']
-            except TypeError:
-                location = ''
-            new_entry.append(location)
-            try:
-                coordinates = [coord for loc in status['place']['bounding_box']['coordinates'] for coord in loc]
-            except TypeError:
-                coordinates = None
-            new_entry.append(coordinates)
+                try:
+                    is_sensitive = status['possibly_sensitive']
+                except KeyError:
+                    is_sensitive = None
+                new_entry.append(is_sensitive)
 
-            single_tweet_df = pd.DataFrame([new_entry], columns=COLS)
-            # print(single_tweet_df['id'])
-            df = df.append(single_tweet_df, ignore_index=True)
+                # hashtagas and mentiones are saved using comma separted
+                hashtags = ", ".join([hashtag_item['text'] for hashtag_item in status['entities']['hashtags']])
+                new_entry.append(hashtags)
+                mentions = ", ".join([mention['screen_name'] for mention in status['entities']['user_mentions']])
+                new_entry.append(mentions)
 
-            # csvFile = open(file, 'a' ,encoding='utf-8')
-            # df.to_csv(csvFile, mode='a', columns=COLS, index=False, encoding="utf-8")
-        
-        df['source'] = 'nan'
-        df['original_text'] = 'drop'
-        for i in range(0,len(df)):
-          up_load(df.iloc[[i],:],keyword)
-          # print(df.iloc[[i],:])
-          # print("*********")
-        # print(df.head())
-    #end of page
+                #get location of the tweet if possible
+                try:
+                    location = status['user']['location']
+                except TypeError:
+                    location = ''
+                new_entry.append(location)
+                try:
+                    coordinates = [coord for loc in status['place']['bounding_box']['coordinates'] for coord in loc]
+                except TypeError:
+                    coordinates = None
+                new_entry.append(coordinates)
+
+                single_tweet_df = pd.DataFrame([new_entry], columns=COLS)
+                # print(single_tweet_df['id'])
+                df = df.append(single_tweet_df, ignore_index=True)
+
+                # csvFile = open(file, 'a' ,encoding='utf-8')
+                # df.to_csv(csvFile, mode='a', columns=COLS, index=False, encoding="utf-8")
+            
+            df['source'] = 'nan'
+            df['original_text'] = 'drop'
+            for i in range(0,len(df)):
+              up_load(df.iloc[[i],:],keyword)
+              # print(df.iloc[[i],:])
+              # print("*********")
+            # print(df.head())
+        #end of page    
+
+    except Exception as e:
+      time.sleep(1300)
+      continue
+
+
+
         # print(df['id'])
 #Twitter credentials for the app
 consumer_key = 'FQlQCFe2KSvESyyred29PjlNj'
