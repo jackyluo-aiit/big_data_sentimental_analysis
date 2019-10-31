@@ -160,7 +160,7 @@ def write_tweets(keyword, file):
 
     except Exception as e:
       time.sleep(1300)
-      continue
+      pass
 
 
 
