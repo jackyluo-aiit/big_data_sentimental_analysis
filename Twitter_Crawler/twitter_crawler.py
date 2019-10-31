@@ -159,6 +159,7 @@ def write_tweets(keyword, file):
         #end of page    
 
     except Exception as e:
+      print("sleeping now")
       time.sleep(1300)
       pass
 
