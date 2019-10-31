@@ -45,7 +45,7 @@ def doc2vec_model(train_content):
     model.build_vocab(train_content)
     print('...vocab built completed...')
     model.train(train_content, total_examples=model.corpus_count, epochs=model.epochs)
-    model.save('epoch10_mincount500_window5_dm_alpha025_worker7_minalpha001_model')
+    model.save('epoch10_mincount500_window5_dm_alpha025_worker7_minalpha001_model_v2')
     print('...saved model...')
     return model
 
@@ -89,8 +89,14 @@ def get_cent(points, k):
     return cluster_centers
 
 
-def get_custom_cent(points):
-    pass
+def get_custom_cent(points, negative_index, positive_index):
+    m, n = np.shape(points)
+    cluster_centers = np.mat(np.zeros((2, n)))
+    ne_index = np.random.choice(negative_index)
+    po_index = np.random.choice(positive_index)
+    cluster_centers[0, :] = np.copy(points[ne_index, :])
+    cluster_centers[1, :] = np.copy(points[po_index, :])
+    return cluster_centers
 
 
 def furest(centroid, points, centroids):
@@ -108,10 +114,11 @@ def furest(centroid, points, centroids):
     return max_index
 
 
-def kMeans(dataSet, k, distMeans=distCosin, createCent=get_cent):
+def kMeans(dataSet, k, ne_index, po_index, distMeans=distCosin, createCent=get_custom_cent):
     m = np.shape(dataSet)[0]
     clusterRecord = np.mat(np.zeros((m, 2)))
-    centroids = createCent(dataSet, k)
+    # centroids = createCent(dataSet, k)
+    custom_centroids = createCent(dataSet, ne_index, po_index)
     clusterUpdate = True
     while clusterUpdate:
         clusterUpdate = False
@@ -120,7 +127,7 @@ def kMeans(dataSet, k, distMeans=distCosin, createCent=get_cent):
             minDist = np.inf
             minIndexofCluster = -1
             for clusterCent in range(k):
-                dist = distMeans(dataSet[i, :], centroids[clusterCent, :])
+                dist = distMeans(dataSet[i, :], custom_centroids[clusterCent, :])
                 if dist < minDist:
                     minDist = dist
                     minIndexofCluster = clusterCent
@@ -131,24 +138,31 @@ def kMeans(dataSet, k, distMeans=distCosin, createCent=get_cent):
         for cent in range(k):
             pointsInClust = dataSet[np.nonzero(clusterRecord[:, 0].A == cent)[0],
                             :]  # select the nonzero rows whose index is equal to the current centroid index, and then select the corresponding rows in dataset.
-            centroids[cent, :] = np.mean(pointsInClust, axis=0)
+            custom_centroids[cent, :] = np.mean(pointsInClust, axis=0)
 
-    return centroids, clusterRecord
+    return custom_centroids, clusterRecord
 
 
 if __name__ == '__main__':
-    train_dataset = load_dataset()
-    all_text = list(train_dataset['content'])
-    test_dataset1 = train_dataset.loc[0:2, ['label', 'content']]
-    test_dataset2 = train_dataset.loc[1599997:1599998, ['label', 'content']]
-    test_dataset = test_dataset1.append(test_dataset2, ignore_index=True)
-    train_dataset = train_dataset.loc[2:1599997, ['label', 'content']]
-    print("text_dataset: \n", test_dataset.head)
+    dataset = load_dataset()
+    all_text = list(dataset['content'])
+    test_dataset1 = dataset.loc[0:1, ['label', 'content']]
+    test_dataset2 = dataset.loc[1599997:1599998, ['label', 'content']]
+    test_dataset = test_dataset1.append(test_dataset2, ignore_index=False)
+    train_dataset = dataset.loc[2:1599996, ['label', 'content']]
+    negative_set = train_dataset.loc[(train_dataset['label'] == 0)]
+    positive_set = train_dataset.loc[(train_dataset['label'] == 4)]
+    negative_setIndex = negative_set.index.values
+    positive_setIndex = positive_set.index.values
+    print("negative_index:",negative_setIndex)
+    print("positive_index:",positive_setIndex)
+    print("train_dataset: \n", train_dataset.head)
+    print("test_dataset: \n", test_dataset.head)
     train_content = split_words(train_dataset)
     # model = doc2vec_model(train_content)
-    model = Doc2Vec.load('/Users/jackyluo/OneDrive - The Chinese University of Hong Kong/Big '
-                         'Data/project/the-disagreeable-frogs/doc2vec_model'
-                         '/epoch10_mincount500_window5_dm_alpha025_worker7_minalpha001_model')
+    model = Doc2Vec.load('epoch10_mincount500_window5_dm_alpha025_worker7_minalpha001_model_v2')
+    #                      'Data/project/the-disagreeable-frogs/doc2vec_model'
+    #                      '/epoch10_mincount500_window5_dm_alpha025_worker7_minalpha001_model')
 
     print('testing model:')
     for test_sentence in test_dataset['content'].values:
@@ -216,7 +230,7 @@ if __name__ == '__main__':
 
     # custom kmeans++
     k = 2
-    custom_centroid, custom_cluster = kMeans(X, k)
+    custom_centroid, custom_cluster = kMeans(X, k, negative_setIndex, positive_setIndex)
     df = dfcluster = pd.DataFrame(custom_cluster, columns=['label', 'distance'])
     label_dict = {i:dfcluster[(dfcluster['label'] == i)].index for i in range(0, k)}
     print(label_dict)
