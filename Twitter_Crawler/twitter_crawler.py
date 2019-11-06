@@ -59,6 +59,8 @@ def up_load(df, company):
   date_time_obj = datetime.datetime.strptime(date_time_obj, '%a %b %d %H:%M:%S %z %Y')
   date_time_obj = re.sub('-', '',  str(date_time_obj.date()))
   df['created_at'] = date_time_obj
+
+  # print(df['created_at'])
   for c in COLS:
     # print(df[c].tolist()[0])
     sql+= "\""+str(df[c].tolist()[0])+"\","  
@@ -68,13 +70,13 @@ def up_load(df, company):
       return 0
 
   sql +="\"-1\",\""+ str(company[1:]) +"\")"
-  print(sql)
-  # try:
-  #   cursor.execute(sql)
-  #   db.commit()
-  # except Exception as e:
-  #   # print(e)
-  #   pass
+  # print(sql)
+  try:
+    cursor.execute(sql)
+    db.commit()
+  except Exception as e:
+    print(e)
+    pass
   return 0
 
 #method write_tweets()
@@ -164,6 +166,7 @@ def write_tweets(keyword, file):
         #end of page    
 
     except Exception as e:
+      print(e)
       time.sleep(1300)
       pass
 
@@ -185,8 +188,8 @@ pd.options.display.width = 50
 #file location changed to "data/telemedicine_data_extraction/" for clearer path
 code = ['BTC','XNET','ATVI', 'ADBE', 'ALGN', 'ALXN', 'AMZN', 'AMGN', 'AAL', 'ADI', 'AAPL', 'AMAT', 'ASML', 'ADSK', 'ADP', 'AVGO', 'BIDU', 'BIIB', 'BMRN', 'CDNS', 'CELG', 'CERN', 'CHKP', 'CHTR', 'CTRP', 'CTAS', 'CSCO', 'CTXS', 'CMCSA', 'COST', 'CSX', 'CTSH', 'DLTR', 'EA', 'EBAY', 'EXPE', 'FAST', 'FB', 'FISV', 'GILD', 'GOOG', 'GOOGL', 'HAS', 'HSIC', 'ILMN', 'INCY', 'INTC', 'INTU', 'ISRG', 'IDXX', 'JBHT', 'JD', 'KLAC', 'KHC', 'LRCX', 'LBTYA', 'LBTYK', 'LULU', 'MELI', 'MAR', 'MCHP', 'MDLZ', 'MNST', 'MSFT', 'MU', 'MXIM', 'MYL', 'NTAP', 'NFLX', 'NTES', 'NVDA', 'NXPI', 'ORLY', 'PAYX', 'PCAR', 'BKNG', 'PYPL', 'PEP', 'QCOM', 'REGN', 'ROST', 'SIRI', 'SWKS', 'SBUX', 'SYMC', 'SNPS', 'TTWO', 'TSLA', 'TXN', 'TMUS', 'ULTA', 'UAL', 'VRSN', 'VRSK', 'VRTX', 'WBA', 'WDC', 'WDAY', 'WYNN', 'XEL', 'XLNX']
 # code = ['ATVI', 'ADBE']
-db = pymysql.connect("ec2-3-85-189-73.compute-1.amazonaws.com","ubuntu","123456","big_data" )
-# db = pymysql.connect("localhost","ubuntu","123456","big_data" )
+# db = pymysql.connect("ec2-3-85-189-73.compute-1.amazonaws.com","ubuntu","123456","big_data" )
+db = pymysql.connect("localhost","ubuntu","123456","big_data" )
 cursor = db.cursor()
 
 
