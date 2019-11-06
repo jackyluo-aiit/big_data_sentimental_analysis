@@ -1,12 +1,13 @@
 import pandas as pd
 import preprocessor as p
 import re
+import string
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
 import nltk
 import numpy as np
 
-nltk.download('stopwords')
+nltk.download('wordnet')
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 
@@ -14,15 +15,6 @@ from nltk.corpus import stopwords
 This file is to select the data with polarity are '0' and '4';
 Then clean the data, which only remains the words and punctuations.
 '''
-
-
-def remove_pattern(input_txt, pattern):
-    r = re.findall(pattern, input_txt)
-    for i in r:
-        input_txt = re.sub(i, '', input_txt)
-
-    return input_txt
-
 
 pattern = r"""(?x)                   # set flag to allow verbose regexps
 	              (?:[A-Z]\.)+           # abbreviations, e.g. U.S.A.
@@ -32,37 +24,53 @@ pattern = r"""(?x)                   # set flag to allow verbose regexps
 	              |(?:[.,;"'?():-_`])    # special characters with meanings
 	            """
 
-data = pd.read_csv(
-    "/Users/jackyluo/OneDrive - The Chinese University of Hong Kong/Big Data/project/the-disagreeable-frogs/training.1600000.processed.noemoticon.csv",
-    encoding="ISO-8859-1")
+data = pd.read_csv("database_data.csv", encoding="utf-8")
 
-data.columns = ['label', '', '', '', '', 'content']
-sel_data = data[(data['label'] == 0) | (data['label'] == 4)]
-new_data = sel_data[['label']]
+data.columns = ['', '', '', '', 'content', '', '', '', '', '', '', '', '', '', '', '', '', 'label', '']
+new_data = data[['label']]
 new_data.insert(1, 'content', data['content'])
+print(new_data.info)
 
-# new_data.loc[:, ['clean_content']] = np.vectorize(remove_pattern)(new_data.loc[:, ['content']], "@[\w]*")
-# new_data.loc[:, 'clean_content'] = new_data.loc[:, 'content'].apply(lambda x: ' '.join([w for w in x.split() if len(w) > 3]))
-content = []
-
-# string = 'Happy 38th Birthday to my boo of alll time!!! Tupac Amaru Shakur'
+# string = 'Boeing -800 American Airlines N917NN Painted `` Air-Cal Heritage '' special colours Airliner Prof…'
 # clean_line = p.clean(string)
+# clean_line = re.sub("[\s+\.\!\/_,$%^*(+\"\'`]+|[+——！，。？、~@#￥%……&*（）-]+", " ", clean_line)
+# clean_line = re.sub(r'\d+', ' ', clean_line)
+# print(clean_line)
 # clean_line = nltk.regexp_tokenize(clean_line, pattern)
-# # raw_words = nltk.word_tokenize(clean_line)
-# filtered_words = [word for word in clean_line if word not in stopwords.words('english')]
+# print(clean_line)
+# wordnet_lematizer = WordNetLemmatizer()
+# words = [wordnet_lematizer.lemmatize(raw_word) for raw_word in clean_line]
+# print(words)
+# filtered_words = [word for word in words if word not in stopwords.words('english')]
 # filtered_words = " ".join(str(x) for x in filtered_words)
 # print(filtered_words)
-for line in new_data['content'].values:
-    clean_line = p.clean(line)
-    clean_line = nltk.regexp_tokenize(clean_line, pattern)
-    # raw_words = nltk.word_tokenize(clean_line)
-    filtered_words = [word for word in clean_line if word not in stopwords.words('english')]
-    filtered_words = " ".join(str(x) for x in filtered_words)
-    content.append(filtered_words)
 
-new_data.loc[:, 'clean_content'] = content
-new_data['data_length'] = new_data['clean_data'].apply(len)
-new_data.loc[:, 'clean_content'] = new_data[(new_data['data_length'] >= 3)]
+for index, row in new_data.iterrows():
+    # clean_line = p.clean(line)
+    line = row['content']
+    # line = p.clean(line)
+    # print(line)
+    if isinstance(line, str):
+        clean_line = line.lower()
+        clean_line = re.sub("[\s+\.\!\/_,$%^*(+\"\'`:;?]+|[+——！，。？、~@#￥#%……&*（）-]+", " ", clean_line)
+        clean_line = re.sub(r'\d+', ' ', clean_line)
+        # print(clean_line)
+        clean_line = nltk.regexp_tokenize(clean_line, pattern)
+        # print(clean_line)
+        wordnet_lematizer = WordNetLemmatizer()
+        words = [wordnet_lematizer.lemmatize(raw_word) for raw_word in clean_line]
+        # print(words)
+        filtered_words = [word for word in words if word not in stopwords.words('english')]
+        filtered_words = " ".join(str(x) for x in filtered_words)
+        print(filtered_words)
+        new_data.loc[index, 'clean_content'] = filtered_words
+    else:
+        new_data.drop(index=index)
 
-print(new_data.clean_content)
-new_data.to_csv('sentiment_cleaned.csv')
+new_data.reset_index(inplace=True, drop=True)
+new_data.drop_duplicates(subset=['clean_content'], keep='first', inplace=True)
+new_data.reset_index(drop=True, inplace=True)
+
+
+print(new_data['clean_content'])
+new_data.to_csv('database_test.csv')
