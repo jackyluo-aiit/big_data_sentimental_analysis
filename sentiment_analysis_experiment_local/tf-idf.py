@@ -66,8 +66,9 @@ def computefpp(cluster_dict, original_data, result_filename):
                 key = 4
             if original_data.loc[item, ['label']].values != key:
                 count += 1
-            cluster_fp = count / len(cluster_set)
-            cluster_fp_set[key] = cluster_fp
+        cluster_fp = count / len(cluster_set)
+
+    cluster_fp_set[key] = cluster_fp
 
     print("fpp:\n", cluster_fp_set)
     with open(result_filename, 'a+') as f:

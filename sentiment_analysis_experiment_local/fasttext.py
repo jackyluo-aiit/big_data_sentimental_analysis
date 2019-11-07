@@ -132,19 +132,28 @@ def embeding(modelfile, data, matrix_file):
     return embs
 
 
-def computefpp(cluster_dict, original_data, result_filename):
+def computefpp(cluster_dict, original_data, result_filename, model=0):
     cluster_fp_set = {}
     for key in cluster_dict.keys():
         count = 0
         cluster_set = cluster_dict[key]
-        for item in cluster_set:
-            if key != 0:
-                key = 4
-            if original_data.loc[item, ['label']].values != key:
-                count += 1
+        if model == 0:
+            for item in cluster_set:
+                if key != 0:
+                    key = 4
+                if original_data.loc[item, ['label']].values != key:
+                    count += 1
+                cluster_fp = count / len(cluster_set)
+                cluster_fp_set[key] = cluster_fp
+        if model == 1:
+            for item in cluster_set:
+                if key == 1 and original_data.loc[item, ['polarity']].values <= 0:
+                    count += 1
+                if key == 0 and original_data.loc[item, ['polarity']].values > 0:
+                    count += 1
             cluster_fp = count / len(cluster_set)
-            cluster_fp_set[key] = cluster_fp
 
+        cluster_fp_set[key] = cluster_fp
     print("fpp:\n", cluster_fp_set)
     with open(result_filename, 'a+') as f:
         w = csv.writer(f)
@@ -155,7 +164,7 @@ def computefpp(cluster_dict, original_data, result_filename):
 def valuate(X, po_index, ne_index, test_dataset):
     test_matrix = embeding('/Users/jackyluo/OneDrive - The Chinese University of Hong Kong/Big '
                            'Data/project/the-disagreeable-frogs/fasttext_model/twitter_unigrams.bin',
-                           test_dataset['clean_content'], 'fast-text-test_reprocessed_dataset_1000.npy')
+                           test_dataset['clean_content'], 'fast-text-database_test.npy')
     scaler = preprocessing.StandardScaler().fit(test_matrix)
     test_matrix_scaled = scaler.transform(test_matrix)
     print("test_matrix shape:",np.shape(test_matrix))
@@ -181,52 +190,54 @@ def valuate(X, po_index, ne_index, test_dataset):
         # print(np.shape(inferred_vector))
         dist1 = distCosin(X_ne_mean, inferred_vector)
         dist2 = distCosin(X_po_mean, inferred_vector)
-        print(dist1)
-        print(dist2)
         if dist1 < dist2:
             ne_list.append(index)
         else:
             po_list.append(index)
     label_dict[0] = ne_list
     label_dict[1] = po_list
+    np.save('mean_centroid.npy', X_mean)
     return label_dict, X_mean
 
 
 if __name__ == '__main__':
     new_data = pd.read_csv("sentiment_cleaned.csv")
-    print(new_data.loc[:, 'clean_content'])
+    print("train_dataset:\n", new_data.loc[:, 'clean_content'])
+    databese_test_data = pd.read_csv("database_test.csv")
+    print("database_test_dataset:\n", databese_test_data.info)
     negative_set = new_data.loc[(new_data['label'] == 0)]
     positive_set = new_data.loc[(new_data['label'] == 4)]
     negative_setIndex = negative_set.index.values
     positive_setIndex = positive_set.index.values
     # print("negative_index:",negative_setIndex)
     # print("positive_index:",positive_setIndex)
-    test_index_ne = np.random.choice(negative_setIndex, size=500)
-    test_index_po = np.random.choice(positive_setIndex, size=500)
-    # print(test_index_ne, test_index_po)
-    test_dataset_ne = new_data.loc[test_index_ne]
-    test_dataset_po = new_data.loc[test_index_po]
-    test_dataset = test_dataset_ne.append(test_dataset_po, ignore_index=True)  # reset all the index in test_dataset
-    new_data.drop(index=test_index_ne)
-    new_data.drop(index=test_index_po)
-    new_data.reset_index(drop=True)
-    negative_set = new_data.loc[(new_data['label'] == 0)]
-    positive_set = new_data.loc[(new_data['label'] == 4)]
-    negative_setIndex = negative_set.index.values
-    positive_setIndex = positive_set.index.values
+
+    # test_index_ne = np.random.choice(negative_setIndex, size=0)
+    # test_index_po = np.random.choice(positive_setIndex, size=0)
+    # # print(test_index_ne, test_index_po)
+    # test_dataset_ne = new_data.loc[test_index_ne]
+    # test_dataset_po = new_data.loc[test_index_po]
+    # test_dataset = test_dataset_ne.append(test_dataset_po, ignore_index=True)  # reset all the index in test_dataset
+    # new_data.drop(index=test_index_ne)
+    # new_data.drop(index=test_index_po)
+    # new_data.reset_index(drop=True)
+    # negative_set = new_data.loc[(new_data['label'] == 0)]
+    # positive_set = new_data.loc[(new_data['label'] == 4)]
+    # negative_setIndex = negative_set.index.values
+    # positive_setIndex = positive_set.index.values
 
     print("after drop test set:\n", new_data)
-    print("test_set:", test_dataset)
+    print("test_set:", databese_test_data)
     embed_matrix = embeding('/Users/jackyluo/OneDrive - The Chinese University of Hong Kong/Big '
                             'Data/project/the-disagreeable-frogs/fasttext_model/twitter_unigrams.bin',
-                            new_data['clean_content'].values, 'fast-text_reprocessed_dataset_1000.npy')
-    scaler = preprocessing.StandardScaler().fit(embed_matrix)
-    embed_matrix_scaled = scaler.transform(embed_matrix)
+                            new_data['clean_content'].values, 'fast-text_sentimental_train_dataset.npy')
+    # scaler = preprocessing.StandardScaler().fit(embed_matrix)
+    # embed_matrix_scaled = scaler.transform(embed_matrix)
     print("embeded matrix shape:", embed_matrix.shape)
 
-    label_dict, mean_centroid = valuate(embed_matrix, positive_setIndex, negative_setIndex, test_dataset)
+    label_dict, mean_centroid = valuate(embed_matrix, positive_setIndex, negative_setIndex, databese_test_data)
     print(label_dict)
-    computefpp(label_dict, test_dataset, "mean-result_fasttext.csv")
+    computefpp(label_dict, databese_test_data, "mean-result_fasttext.csv", model=1)
 
     # print("Using sklearn kmeans++:")
     # k = 2

@@ -10,6 +10,7 @@ import numpy as np
 nltk.download('wordnet')
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
+import os
 
 '''
 This file is to select the data with polarity are '0' and '4';
@@ -24,12 +25,20 @@ pattern = r"""(?x)                   # set flag to allow verbose regexps
 	              |(?:[.,;"'?():-_`])    # special characters with meanings
 	            """
 
-data = pd.read_csv("database_data.csv", encoding="utf-8")
+# data = pd.read_csv("database_data.csv", encoding="utf-8")
+# data.columns = ['', '', '', '', 'content', '', 'polarity', '', '', '', '', '', '', '', '', '', '', 'label', '']
+# new_data = data[['label']]
+# new_data.insert(1, 'content', data['content'])
+# new_data.insert(2, 'polarity', data['polarity'])
+# print(new_data.info)
 
-data.columns = ['', '', '', '', 'content', '', '', '', '', '', '', '', '', '', '', '', '', 'label', '']
-new_data = data[['label']]
+
+data = pd.read_csv(
+    "training.1600000.processed.noemoticon.csv", encoding="ISO-8859-1")
+data.columns = ['label', '', '', '', '', 'content']
+sel_data = data[(data['label'] == 0) | (data['label'] == 4)]
+new_data = sel_data[['label']]
 new_data.insert(1, 'content', data['content'])
-print(new_data.info)
 
 # string = 'Boeing -800 American Airlines N917NN Painted `` Air-Cal Heritage '' special colours Airliner Prof…'
 # clean_line = p.clean(string)
@@ -48,7 +57,7 @@ print(new_data.info)
 for index, row in new_data.iterrows():
     # clean_line = p.clean(line)
     line = row['content']
-    # line = p.clean(line)
+    line = p.clean(line)
     # print(line)
     if isinstance(line, str):
         clean_line = line.lower()
@@ -71,6 +80,5 @@ new_data.reset_index(inplace=True, drop=True)
 new_data.drop_duplicates(subset=['clean_content'], keep='first', inplace=True)
 new_data.reset_index(drop=True, inplace=True)
 
-
 print(new_data['clean_content'])
-new_data.to_csv('database_test.csv')
+new_data.to_csv('sentimental_train_dataset.csv')
