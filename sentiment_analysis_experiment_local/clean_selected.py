@@ -61,7 +61,7 @@ for index, row in new_data.iterrows():
     # print(line)
     if isinstance(line, str):
         clean_line = line.lower()
-        clean_line = re.sub("[\s+\.\!\/_,$%^*(+\"\'`:;?]+|[+——！，。？、~@#￥#%……&*（）-]+", " ", clean_line)
+        clean_line = re.sub("[\s+\.\!\/_,$%^*()\[\]+\"\'`:;?]+|[+——！，。？、~@#￥#%……&*（）-]+", " ", clean_line)
         clean_line = re.sub(r'\d+', ' ', clean_line)
         # print(clean_line)
         clean_line = nltk.regexp_tokenize(clean_line, pattern)
@@ -78,6 +78,9 @@ for index, row in new_data.iterrows():
 
 new_data.reset_index(inplace=True, drop=True)
 new_data.drop_duplicates(subset=['clean_content'], keep='first', inplace=True)
+null_index = new_data[new_data.clean_content.isnull()].index.tolist()
+new_data.drop(index=null_index)
+new_data.dropna(axis=0, how='any', inplace=True)
 new_data.reset_index(drop=True, inplace=True)
 
 print(new_data['clean_content'])
