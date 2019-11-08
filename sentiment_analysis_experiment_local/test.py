@@ -37,11 +37,13 @@ data = pd.read_csv("database_data.csv", encoding="utf-8")
 data.columns = ['', '', '', '', 'content', '', 'polarity', '', '', '', '', '', '', '', '', '', '', 'label', '']
 raw_content = pd.DataFrame(columns=['in_index', 'content'])
 okp = online_kmeans_pipeline()
+
 for index, row in data.iterrows():
     raw_content = pd.DataFrame(columns=['in_index', 'content'])
     raw_content = raw_content.append(pd.DataFrame({'in_index': [index], 'content': [row['content']]}))
     print(raw_content)
     okp.process_content(raw_content)
+
 okp.saveresult()
 df = pd.read_csv('cluster_result.csv')
 print(df)
