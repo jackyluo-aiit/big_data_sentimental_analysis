@@ -66,11 +66,18 @@ def wordlemmatize(string):
 # new_data = new_data.loc[88019:, :]
 if __name__ == '__main__':
     data = pd.read_csv("database_data.csv", encoding="utf-8")
-    data.columns = ['', '', '', '', 'content', '', 'polarity', '', '', '', '', '', '', '', '', '', '', 'label', '']
-    new_data = data[['label']]
-    new_data.insert(1, 'content', data['content'])
-    new_data.insert(2, 'polarity', data['polarity'])
-    print(new_data.info)
+    data.columns = ['database_id', '', '', '', 'content', '', 'polarity', '', '', '', '', '', '', '', '', '', '', 'label', '']
+    new_data = data[['database_id', 'label']]
+    new_data.insert(2, 'content', data['content'])
+    new_data.insert(3, 'polarity', data['polarity'])
+    new_data = new_data.set_index('database_id')
+    # data = pd.read_csv(
+    #     "training.1600000.processed.noemoticon.csv", encoding="ISO-8859-1")
+    # data.columns = ['label', '', '', '', '', 'content']
+    # sel_data = data[(data['label'] == 0) | (data['label'] == 4)]
+    # new_data = sel_data[['label']]
+    # new_data.insert(1, 'content', data['content'])
+    print(new_data.info())
 
     new_data = new_data.dropna(subset=['content'])
     new_data['clean_content'] = new_data['content'].apply(clean_tweet)
@@ -78,13 +85,12 @@ if __name__ == '__main__':
     new_data['clean_content'] = new_data['clean_content'].apply(wordlemmatize)
     new_data['clean_content'] = new_data['clean_content'].apply(
         lambda x: ' '.join([w for w in x.split() if w not in stopwords.words('english')]))
-
     new_data['clean_content_length'] = new_data['clean_content'].apply(len)
 
-    new_data.drop_duplicates(keep='first', inplace=True)
-    null_index = new_data[(new_data['clean_content_length'] == 0)].index.tolist()
+    null_index = new_data[(new_data['clean_content_length'] < 3)].index.tolist()
     new_data = new_data.drop(index=null_index)
-    print(new_data.loc[:, ['clean_content', 'clean_content_length']])
+    new_data.drop_duplicates(subset=['clean_content'], keep='first', inplace=True)
+    print(new_data.info())
     # clean_line = re.sub("[\s+\.\!\/_,$%^*(+\"\'`]+|[+——！，。？、~@#￥%……&*（）-]+", " ", clean_line)
     # clean_line = re.sub(r'\d+', ' ', clean_line)
     # print(clean_line)
@@ -127,4 +133,4 @@ if __name__ == '__main__':
     # new_data.reset_index(drop=True, inplace=True)
     #
     # print(new_data['clean_content'])
-    new_data.to_csv('database_clean_data.csv')
+    new_data.to_csv('database_test_data.csv')

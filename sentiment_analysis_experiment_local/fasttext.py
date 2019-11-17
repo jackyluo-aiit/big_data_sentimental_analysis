@@ -162,11 +162,10 @@ def computefpp(cluster_dict, original_data, result_filename, model=0):
 
 
 def valuate(X, po_index, ne_index, test_dataset):
-    test_matrix = embeding('/Users/jackyluo/OneDrive - The Chinese University of Hong Kong/Big '
-                           'Data/project/the-disagreeable-frogs/fasttext_model/twitter_unigrams.bin',
+    test_matrix = embeding('/home/lxq/PycharmProjects/the-disagreeable-frogs/fasttext_model/twitter_unigrams.bin',
                            test_dataset['clean_content'], 'fast-text-database_test.npy')
-    scaler = preprocessing.StandardScaler().fit(test_matrix)
-    test_matrix_scaled = scaler.transform(test_matrix)
+    # scaler = preprocessing.StandardScaler().fit(test_matrix)
+    # test_matrix_scaled = scaler.transform(test_matrix)
     print("test_matrix shape:",np.shape(test_matrix))
     X_ne = X[ne_index, :]
     X_po = X[po_index, :]
@@ -202,9 +201,9 @@ def valuate(X, po_index, ne_index, test_dataset):
 
 if __name__ == '__main__':
     new_data = pd.read_csv("sentiment_cleaned.csv")
-    print("train_dataset:\n", new_data.loc[:, 'clean_content'])
-    databese_test_data = pd.read_csv("database_test.csv")
-    print("database_test_dataset:\n", databese_test_data.info)
+    print("train_dataset:\n", new_data.info())
+    databese_test_data = pd.read_csv("database_test_data.csv")
+    print("database_test_dataset:\n", databese_test_data.info())
     negative_set = new_data.loc[(new_data['label'] == 0)]
     positive_set = new_data.loc[(new_data['label'] == 4)]
     negative_setIndex = negative_set.index.values
@@ -228,8 +227,7 @@ if __name__ == '__main__':
 
     print("after drop test set:\n", new_data)
     print("test_set:", databese_test_data)
-    embed_matrix = embeding('/Users/jackyluo/OneDrive - The Chinese University of Hong Kong/Big '
-                            'Data/project/the-disagreeable-frogs/fasttext_model/twitter_unigrams.bin',
+    embed_matrix = embeding('/home/lxq/PycharmProjects/the-disagreeable-frogs/fasttext_model/twitter_unigrams.bin',
                             new_data['clean_content'].values, 'fast-text_sentimental_train_dataset.npy')
     # scaler = preprocessing.StandardScaler().fit(embed_matrix)
     # embed_matrix_scaled = scaler.transform(embed_matrix)
