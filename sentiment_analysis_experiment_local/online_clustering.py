@@ -105,6 +105,7 @@ class online_kmeans_pipeline(object):
             print('number of elements in positive cluster:', n)
             self.mean_centroids[1, :] = self.updateMean(vectorized_content, po_mean, n)
         tmp_cluster.to_csv('tmp_result.csv', mode='a+', header=False)
+        return tmp_cluster
 
     def process_content(self, raw_content):
         df = raw_content
@@ -115,9 +116,9 @@ class online_kmeans_pipeline(object):
                 if len(preprocessed_content.split()) >= 3:
                     vectorized_content = self.embed_content(preprocessed_content)
                     in_index = row['in_index']
-                    self.kmeanspp(vectorized_content, in_index)
+                    return self.kmeanspp(vectorized_content, in_index)
                 else:
-                    'Less than 3 words left after preprocessed!!!'
+                    print('Less than 3 words left after preprocessed!!!')
 
     def saveresult(self):
         self.cluster_pd.to_csv('cluster_result.csv', mode='a+', header=False)

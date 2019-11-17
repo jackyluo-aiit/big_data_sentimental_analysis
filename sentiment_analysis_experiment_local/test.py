@@ -50,12 +50,18 @@ for index, row in data.iterrows():
     raw_content = pd.DataFrame(columns=['in_index', 'content'])
     raw_content = raw_content.append(pd.DataFrame({'in_index': index, 'content': [row['content']]}))
     print(raw_content)
-    okp.process_content(raw_content)
+    result_df = okp.process_content(raw_content)
+    result_df.columns = ['index', 'label']
+    result_df = result_df.set_index('index')
+    id = result_df['index'][0]
+    label = result_df['label'][0]
+    print(id, label)
+
 
 okp.saveresult()
 
 df = pd.read_csv('cluster_result.csv')
-df.columns = ['index','label']
+df.columns = ['index', 'label']
 df = df.set_index('index')
 print(df.index)
 label_dict = {}
