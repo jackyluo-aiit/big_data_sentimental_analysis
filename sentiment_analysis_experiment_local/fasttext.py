@@ -143,8 +143,8 @@ def computefpp(cluster_dict, original_data, result_filename, model=0):
                     key = 4
                 if original_data.loc[item, ['label']].values != key:
                     count += 1
-                cluster_fp = count / len(cluster_set)
-                cluster_fp_set[key] = cluster_fp
+            cluster_fp = count / len(cluster_set)
+                # cluster_fp_set[key] = cluster_fp
         if model == 1:
             for item in cluster_set:
                 if key == 1 and original_data.loc[item, ['polarity']].values <= 0:
@@ -162,8 +162,9 @@ def computefpp(cluster_dict, original_data, result_filename, model=0):
 
 
 def valuate(X, po_index, ne_index, test_dataset):
-    test_matrix = embeding('/home/lxq/PycharmProjects/the-disagreeable-frogs/fasttext_model/twitter_unigrams.bin',
-                           test_dataset['clean_content'], 'fast-text-database_test.npy')
+    test_matrix = embeding('/Users/jackyluo/OneDrive - The Chinese University of Hong Kong/Big '
+                           'Data/project/the-disagreeable-frogs/fasttext_model/twitter_unigrams.bin',
+                           test_dataset['clean_content'], 'fast-text-database_test_new.npy')
     # scaler = preprocessing.StandardScaler().fit(test_matrix)
     # test_matrix_scaled = scaler.transform(test_matrix)
     print("test_matrix shape:",np.shape(test_matrix))
@@ -227,8 +228,9 @@ if __name__ == '__main__':
 
     print("after drop test set:\n", new_data)
     print("test_set:", databese_test_data)
-    embed_matrix = embeding('/home/lxq/PycharmProjects/the-disagreeable-frogs/fasttext_model/twitter_unigrams.bin',
-                            new_data['clean_content'].values, 'fast-text_sentimental_train_dataset.npy')
+    embed_matrix = embeding('/Users/jackyluo/OneDrive - The Chinese University of Hong Kong/Big '
+                            'Data/project/the-disagreeable-frogs/fasttext_model/twitter_unigrams.bin',
+                            new_data['clean_content'].values, 'fast-text_sentimental_train_dataset_new.npy')
     # scaler = preprocessing.StandardScaler().fit(embed_matrix)
     # embed_matrix_scaled = scaler.transform(embed_matrix)
     print("embeded matrix shape:", embed_matrix.shape)

@@ -17,9 +17,14 @@ from sentiment_analysis_experiment_local.clean_data import *
 
 class online_kmeans_pipeline(object):
     def __init__(self):
+        if os.path.exists('cluster_result.csv'):
+            os.remove('cluster_result.csv')
+        if os.path.exists('tmp_result.csv'):
+            os.remove('tmp_result.csv')
         self.cluster_pd = pd.DataFrame(columns=['label'])
         self.mean_centroids = np.load('mean_centroid.npy')
-        modelfile = 'twitter_unigrams.bin'
+        modelfile = '/Users/jackyluo/OneDrive - The Chinese University of Hong Kong/Big ' \
+                    'Data/project/the-disagreeable-frogs/fasttext_model/twitter_unigrams.bin'
         if os.path.exists(modelfile):
             self.model = sent2vec.Sent2vecModel()
             self.model.load_model(modelfile)
@@ -104,7 +109,7 @@ class online_kmeans_pipeline(object):
             n = self.cluster_pd.loc[self.cluster_pd['label'] == 1].shape[0]
             print('number of elements in positive cluster:', n)
             self.mean_centroids[1, :] = self.updateMean(vectorized_content, po_mean, n)
-        tmp_cluster.to_csv('tmp_result.csv', mode='a+', header=False)
+        # tmp_cluster.to_csv('tmp_result.csv', mode='a+', header=False)
         return tmp_cluster
 
     def process_content(self, raw_content):

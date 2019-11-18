@@ -40,26 +40,30 @@ def computefpp(cluster_dict, original_data, result_filename, model=0):
 data = pd.read_csv("database_data.csv", encoding="utf-8")
 data.columns = ['database_id', '', '', '', 'content', '', 'polarity', '', '', '', '', '', '', '', '', '', '', 'label', '']
 data = data.set_index('database_id')
-data = data.drop(index='root')
+# data = data.drop(index='root')
+# data.index = data.index.astype('float')
 data.index = data.index.astype('int64')
-print(data.index.astype('int64'))
+print(data.index)
 
 okp = online_kmeans_pipeline()
 
 i = 0
 for index, row in data.iterrows():
-    i += 1
-    if i == 10:
-        break
+    # if i > 20:
+    #     break
     raw_content = pd.DataFrame(columns=['in_index', 'content'])
     raw_content = raw_content.append(pd.DataFrame({'in_index': index, 'content': [row['content']]}))
     print(raw_content)
     result_df = okp.process_content(raw_content)
-    result_df.columns = ['index', 'label']
-    result_df = result_df.set_index('index')
-    id = result_df['index'][0]
-    label = result_df['label'][0]
-    print(id, label)
+    try:
+        result_df.columns = ['label']
+    except AttributeError:
+        print("Discard this tweet!!!")
+        continue
+    # result_df = result_df.set_index('index')
+    label = result_df['label']
+    print(label)
+    i += 1
 
 
 okp.saveresult()
