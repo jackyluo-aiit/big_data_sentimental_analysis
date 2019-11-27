@@ -49,8 +49,8 @@ okp = online_kmeans_pipeline()
 
 i = 0
 for index, row in data.iterrows():
-    if i > 20:
-        break
+    # if i > 20:
+    #     break
     raw_content = pd.DataFrame(columns=['in_index', 'content'])
     raw_content = raw_content.append(pd.DataFrame({'in_index': index, 'content': [row['content']]}))
     print(raw_content)
