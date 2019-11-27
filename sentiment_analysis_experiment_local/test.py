@@ -22,7 +22,7 @@ def computefpp(cluster_dict, original_data, result_filename, model=0):
         if model == 1:
             for item in cluster_set:
                 if item in original_data.index:
-                    if key == 1 and original_data.loc[item, ['polarity']].values <= 0:
+                    if key == 1 and original_data.loc[item, ['polarity']].values < 0:
                         count += 1
                     if key == 0 and original_data.loc[item, ['polarity']].values > 0:
                         count += 1
@@ -49,12 +49,12 @@ okp = online_kmeans_pipeline()
 
 i = 0
 for index, row in data.iterrows():
-    # if i > 20:
-    #     break
+    if i > 20:
+        break
     raw_content = pd.DataFrame(columns=['in_index', 'content'])
     raw_content = raw_content.append(pd.DataFrame({'in_index': index, 'content': [row['content']]}))
     print(raw_content)
-    result_df = okp.process_content(raw_content)
+    result_df, dist_base, dist_ne, dist_po = okp.process_content(raw_content)
     try:
         result_df.columns = ['label']
     except AttributeError:
@@ -62,14 +62,16 @@ for index, row in data.iterrows():
         continue
     # result_df = result_df.set_index('index')
     label = result_df['label']
-    print(label)
+    print(dist_base)
+    print(dist_ne)
+    print(dist_po)
     i += 1
 
 
 okp.saveresult()
 
-df = pd.read_csv('cluster_result.csv')
-df.columns = ['index', 'label']
+df = pd.read_csv('cluster_result_new.csv')
+df.columns = ['index', 'label', 'sentimental_score']
 df = df.set_index('index')
 print(df.index)
 label_dict = {}
@@ -85,4 +87,4 @@ for index, row in df.iterrows():
 label_dict[0] = ne_list
 label_dict[1] = po_list
 print(label_dict)
-computefpp(label_dict, data, "mean-result_online_clustering.csv", model=1)
+computefpp(label_dict, data, "mean-result_online_clustering_new.csv", model=1)
