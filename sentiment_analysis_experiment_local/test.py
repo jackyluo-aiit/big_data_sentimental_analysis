@@ -54,7 +54,7 @@ for index, row in data.iterrows():
     raw_content = pd.DataFrame(columns=['in_index', 'content'])
     raw_content = raw_content.append(pd.DataFrame({'in_index': index, 'content': [row['content']]}))
     print(raw_content)
-    result_df, dist_base, dist_ne, dist_po = okp.process_content(raw_content)
+    result_df = okp.process_content(raw_content)
     try:
         result_df.columns = ['label']
     except AttributeError:
@@ -62,9 +62,9 @@ for index, row in data.iterrows():
         continue
     # result_df = result_df.set_index('index')
     label = result_df['label']
-    print(dist_base)
-    print(dist_ne)
-    print(dist_po)
+    # print(dist_base)
+    # print(dist_ne)
+    # print(dist_po)
     i += 1
 
 

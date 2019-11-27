@@ -25,8 +25,9 @@ class online_kmeans_pipeline(object):
         self.mean_centroids = np.load('mean_centroid.npy')
         # self.test = 0
         # self.base = self.mean_centroids[1, :]-self.mean_centroids[0, :]
-        modelfile = '/Users/jackyluo/OneDrive - The Chinese University of Hong Kong/Big ' \
-                    'Data/project/the-disagreeable-frogs/fasttext_model/twitter_unigrams.bin'
+        # modelfile = '/Users/jackyluo/OneDrive - The Chinese University of Hong Kong/Big ' \
+        #             'Data/project/the-disagreeable-frogs/fasttext_model/twitter_unigrams.bin'
+        modelfile = '/home/lxq/PycharmProjects/the-disagreeable-frogs/fasttext_model/twitter_unigrams.bin'
         if os.path.exists(modelfile):
             self.model = sent2vec.Sent2vecModel()
             self.model.load_model(modelfile)
@@ -118,7 +119,7 @@ class online_kmeans_pipeline(object):
             print('number of elements in positive cluster:', n)
             self.mean_centroids[1, :] = self.updateMean(vectorized_content, po_mean, n)
         # tmp_cluster.to_csv('tmp_result.csv', mode='a+', header=False)
-        return tmp_cluster, dist_base, dist_ne, dist_po
+        return tmp_cluster
 
     def process_content(self, raw_content):
         # print("test: ", self.test)
