@@ -23,6 +23,7 @@ class online_kmeans_pipeline(object):
             os.remove('tmp_result.csv')
         self.cluster_pd = pd.DataFrame(columns=['label', 'sentimental_score'])
         self.mean_centroids = np.load('mean_centroid.npy')
+        self.embed_mat = np.zeros((1,700))
         # self.test = 0
         # self.base = self.mean_centroids[1, :]-self.mean_centroids[0, :]
         # modelfile = '/Users/jackyluo/OneDrive - The Chinese University of Hong Kong/Big ' \
@@ -127,14 +128,25 @@ class online_kmeans_pipeline(object):
         for index, row in df.iterrows():
             preprocessed_content = self.preprocess_content(row['content'])
             if isinstance(preprocessed_content, str):
-                print("after preprocessed:", preprocessed_content)
+                print("after preprocessed:", (preprocessed_content))
                 if len(preprocessed_content.split()) >= 3:
                     vectorized_content = self.embed_content(preprocessed_content)
+                    self.embed_mat = np.row_stack((self.embed_mat, vectorized_content))
                     in_index = row['in_index']
                     return self.kmeanspp(vectorized_content, in_index)
                 else:
                     print('Less than 3 words left after preprocessed!!!')
 
     def saveresult(self):
-        self.cluster_pd.to_csv('cluster_result_new.csv', mode='a+', header=False)
-        print("save to file: cluster_result_new.csv")
+        self.embed_mat = np.delete(self.embed_mat, 0, axis=0)
+        np.savetxt("embed_mat.txt", self.embed_mat)
+        np.savetxt("mean_centroid.txt", self.mean_centroids)
+        self.cluster_pd.to_csv('cluster_result_new_test.csv', mode='a+', header=False)
+        print("\nsave to file: cluster_result_new_test.csv")
+
+
+#
+# label_dict[0] = ne_list
+# label_dict[1] = po_list
+# print(label_dict)
+# computefpp(label_dict, data, "mean-result_online_clustering_new.csv", model=1)
