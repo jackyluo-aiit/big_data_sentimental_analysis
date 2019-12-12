@@ -3,19 +3,15 @@ import sys
 import re
 # input comes from STDIN (standard input)
 for line in sys.stdin:
-  # remove leading and trailing whitespace
-  line = line.strip()
+  #splite by ,
+  line = line.split(',',6)
+  #get category number
+  category = line[0]
+  #get content
+  content = line[-1]
   #remove punctuations
-  line = re.sub(r'[^\w\s]','',line)
+  content = re.sub(r'[^\w\s]','',content)
   #to lower case
-  line = line.lower()
-  # split the line into words
-  words = line.split()
-  # increase counters
-  for word in words:
-    # write the results to STDOUT (standard output);
-    # what we output here will be the input for the
-    # Reduce step, i.e. the input for reducer.py
-    #
-    # tab-delimited; the trivial word count is 1
-    print('%s\t%s' % (word, 1))
+  content = content.lower()
+  #output
+  print('%s\t%s' % (category, content))
