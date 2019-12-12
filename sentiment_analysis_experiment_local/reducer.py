@@ -1,5 +1,4 @@
 #coding by Will
-
 from operator import itemgetter
 import sys
 from collections import Counter 
@@ -7,17 +6,17 @@ from collections import Counter
 dic = {}
 for line in sys.stdin:
   line = line.strip()
-  word, count = line.split('\t', 1)
-  #find current word in dic
-  if dic.get(word)  == None:
-    dic[word] = 0
+  categoriy, content = line.split('\t', 1)
+  #embedding
+  comtent = embedding 
+  #find current category weather existed in the dic
+  if dic.get(categoriy)  == None:
+    dic[categoriy] = content
   #not existed add
   else:
-    dic[word] += 1
-  #existed ++1
+    dic[categoriy] += content
+  #existed append
 
-most_common = Counter(dic).most_common(200)
-
-#pop the 200 largest ones according to values
-for m in most_common:
-  print('%s\t%s' % (m[0], m[1]))
+#output the collection for each category
+for k,v in dic:
+  print('%s\t%s' % (k, v))
